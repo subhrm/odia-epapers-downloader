@@ -1,2 +1,6 @@
+
+from datetime import datetime
+from .downloader import get_pdf
+
 def main():
-    print("Hello")
+    pages = get_pdf(datetime.today())
