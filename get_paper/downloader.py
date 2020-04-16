@@ -4,18 +4,20 @@ import requests
 import tempfile
 from PIL import Image
 
-URL_TEMPLATE = "https://sambadepaper.com/epaperimages/{}/{}-md-hr-{}.jpg"
 
-
-def get_pdf(date: datetime):
+def get_pdf(date: datetime, paper_config):
+    title = paper_config["name"]
+    print("="*40)
+    print("Down loading {}  for {}".format(title, str(date)[:10]))
+    print("="*40)
     dl_date = "{:02d}{:02d}{:4d}".format(date.day, date.month, date.year)
-    pages = download_pages(dl_date)
+    pages = download_pages(dl_date, paper_config["url_pattern"])
 
-    fname = "{:04d}-{:02d}-{:02d}.pdf".format(date.year, date.month, date.day)
+    fname = "{}-{:04d}-{:02d}-{:02d}.pdf".format(title, date.year, date.month, date.day)
     make_pdf(pages, fname)
 
 
-def download_pages(date_str: str) -> [Image.Image]:
+def download_pages(date_str: str, url_pattern: str) -> [Image.Image]:
 
     print("Downlading for date ", date_str)
 
@@ -23,7 +25,7 @@ def download_pages(date_str: str) -> [Image.Image]:
     page_num = 0
     while (True):
         page_num += 1
-        url = URL_TEMPLATE.format(date_str, date_str, page_num)
+        url = url_pattern.format(date_str, date_str, page_num)
         try:
             img = get_img(url)
             pages.append(img)
@@ -59,5 +61,5 @@ def get_img(url: str) -> Image.Image:
 def make_pdf(pages: [Image.Image], fname: str):
 
     im1 = pages[0]
-    im1.save(fname, save_all=True, append_images=pages[1:], resolution = 300)
+    im1.save(fname, save_all=True, append_images=pages[1:], quality=90)
     print("File saved as ", fname)
